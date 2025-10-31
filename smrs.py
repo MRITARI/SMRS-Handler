@@ -39,7 +39,8 @@ def banner():
 {Fore.RED} |_____(_)_|  |_(_)_|  \\_(_)_____(_){Fore.RESET} |_|  |_|\\__,_|_| |_|\\__,_|_|\\___|_|   
  {Fore.RED}Simple Multi Reverse Shell{Fore.RESET} Handler
  {Fore.GREEN}By MRITARI{Fore.RESET}
- {Fore.GREEN}Version {version}{Fore.RESET}                                                                         
+ {Fore.GREEN}Version {version}{Fore.RESET}
+ {Fore.BLUE}https://github.com/MRITARI/SMRS-Handler{Fore.RESET}                                                                         
                                                                            
 {Fore.CYAN}[*]{Fore.RESET} Listening on {Fore.GREEN}{HOST}:{PORT}{Fore.RESET}
 {Fore.BLUE}[i]{Fore.RESET} Type {Fore.CYAN}'exit'{Fore.RESET} to quit and {Fore.CYAN}'help'{Fore.RESET} to print help.""")
