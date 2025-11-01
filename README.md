@@ -58,7 +58,9 @@
  5. Use `use <id>` to select a client if auto-selection didn't pick the one you want.
  6. Type shell commands and press Enter — commands are forwarded to the selected client, and output (from that client) appears in your console.
  7. Use `helpsh` to view the bundled one-liners (for convenience), but **do not** use them on targets you are not authorized to test.
- 
+ <img src="https://raw.githubusercontent.com/MRITARI/SMRS-Handler/refs/heads/main/docs/sspowersh.png" alt="Windows" width="700" height="500">
+ <img src="https://raw.githubusercontent.com/MRITARI/SMRS-Handler/refs/heads/main/docs/sslinux.png" alt="Linux" width="700" height="500">
+ <img src="https://raw.githubusercontent.com/MRITARI/SMRS-Handler/refs/heads/main/docs/ssapp.png" alt="App" width="700" height="500">
  ---
  
  ## Commands
