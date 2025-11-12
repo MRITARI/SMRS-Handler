@@ -1,7 +1,7 @@
  # SMRS-Handler
  
  **Simple Multi Reverse Shell Handler** — a light, console-based reverse-shell manager and interactive listener written in Python 3.  
- Built by **MRITARI** — Version `1.0.0`
+ Built by **MRITARI** — Version `1.1.0`
  
  > Lightweight tool to accept/manage multiple reverse shell connections, select a client, and interact with it from a single terminal. Intended for **authorized** testing and lab environments only.
  
