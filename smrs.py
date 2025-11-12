@@ -158,8 +158,8 @@ def banner():
 {Fore.RED}  \\___ \\ | |\\/| | |  _  /   \\___ \\{Fore.RESET}   |  __  |/ _` | '_ \\ / _` | |/ _ \\ '__|
 {Fore.RED}  ____) || |  | |_| | \\ \\ _ ____) |{Fore.RESET}  | |  | | (_| | | | | (_| | |  __/ |
 {Fore.RED} |_____(_)_|  |_(_)_|  \\_(_)_____(_){Fore.RESET} |_|  |_|\\__,_|_| |_|\\__,_|_|\\___|_|
- {Fore.RED}Simple Multi Reverse Shell Handler{Fore.RESET}
- {Fore.GREEN}By MRITARI{Fore.RESET} | Version {VERSION}
+ {Fore.RED}Simple Multi Reverse Shell {Fore.WHITE}Handler{Fore.RESET}
+ {Fore.GREEN}By MRITARI{Fore.RESET} | Version {Fore.GREEN}{VERSION}
  {Fore.BLUE}https://github.com/MRITARI/SMRS-Handler{Fore.RESET}
 
 {Fore.BLUE}[i]{Fore.RESET} Type {Fore.CYAN}'exit'{Fore.RESET} to quit and {Fore.CYAN}'help'{Fore.RESET} for commands.
