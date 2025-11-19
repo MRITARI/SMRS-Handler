@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMRS-Handler Documentation (Blue Neon)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        /* This page is completely vibe-coded because I'm terrible at HTML/CSS, but it's neat as hell. */
+
+
+
+        /* Custom Tailwind Configuration - Adapted for Blue Neon */
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-blue': '#14B7FF', /* Bright Blue */
+                        'dark-blue': '#006699', /* Darker Blue */
+                        'dark-bg': '#0D1117',
+                        'card-bg': '#161B22',
+                        'subtle-text': '#C9D1D9',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0D1117;
+            color: #E6EDF3;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease-in-out;
+            min-height: 100vh;
+        }
+
+        /* Neon Glow Effect on text and borders - BLUE */
+        .neon-glow-blue {
+            text-shadow: 0 0 5px #14B7FF, 0 0 10px #14B7FF;
+        }
+        .border-neon {
+            border-color: #14B7FF;
+            box-shadow: 0 0 8px #14B7FF;
+        }
+        .bg-neon-hover-blue:hover {
+            background-color: #14B7FF;
+            color: #0D1117;
+            box-shadow: 0 0 15px rgba(20, 183, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        /* Content Card Hover Effect (from randomizer.html) */
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(20, 183, 255, 0.2), 0 0 15px rgba(20, 183, 255, 0.5);
+            border-color: #14B7FF;
+        }
+
+        /* Section Fade-in Animation (from website.html) */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom Styling for Code Blocks (for Pygments) */
+        pre {
+            background-color: #0D1117 !important; /* Ensure background matches */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #14B7FF;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        /* Inline Code Styling (replaces `...`) */
+        .inline-code {
+             background-color: #161B22; 
+             padding: 0.2rem 0.4rem;
+             border-radius: 0.3rem;
+             font-family: 'Consolas', 'Courier New', monospace;
+             color: #14B7FF; /* Blue color for visual distinction */
+             font-weight: bold;
+        }
+        
+        blockquote {
+            border-left: 4px solid #14B7FF;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #A8B3CF;
+            font-style: italic;
+        }
+        
+        .code-block-cmd {
+            font-size: 0.9rem;
+            color: #E6EDF3;
+        }
+
+    </style>
+    </head>
+<body class="bg-dark-bg p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto space-y-16">
+
+        <header id="header" class="text-center pt-8 fade-in">
+            <h1 class="text-4xl sm:text-6xl font-extrabold mt-6 neon-glow-blue">SMRS-HANDLER</h1>
+            <p class="text-subtle-text mt-2 text-lg">Simple Multi Reverse Shell Handler</p>
+        </header>
+
+        <section id="overview" class="fade-in" style="transition-delay: 0.2s;">
+            <h2 class="text-3xl font-bold mb-6 text-neon-blue border-b-2 border-neon-blue pb-2 tracking-widest">OVERVIEW</h2>
+            <div class="bg-card-bg p-6 sm:p-8 rounded-xl border border-gray-700 shadow-xl space-y-4">
+                <p class="text-lg text-subtle-text leading-relaxed">
+                    A <strong class="font-bold">light, console-based reverse-shell manager and interactive listener</strong> written in <strong class="font-bold">Python 3</strong>. It allows you to accept and manage multiple reverse shell connections, select a client, and interact with it from a single terminal. (Version 1.1.0)
+                </p>
+                <div class="text-sm font-semibold text-dark-blue p-3 border border-dark-blue rounded-lg">
+                    <strong class="font-bold">Legal & Ethical Notice:</strong> This tool can be used for offensive operations. Do not use it against networks, systems, or devices you do not own or for which you do not have explicit, written permission. Use only in your lab, on your machines, or within written scopes of authorized penetration tests.
+                </div>
+                <div class="flex justify-center space-x-6 mt-6">
+                    <a href="https://github.com/MRITARI" target="_blank" class="text-neon-blue font-bold hover:text-dark-blue transition-colors duration-300 flex items-center">
+                        <i data-lucide="github" class="w-5 h-5 mr-1"></i> GitHub
+                    </a>
+                    <a href="https://github.com/MRITARI/SMRS-Handler" target="_blank" class="text-neon-blue font-bold hover:text-dark-blue transition-colors duration-300 flex items-center">
+                        <i data-lucide="code" class="w-5 h-5 mr-1"></i> Repository
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <section id="features-requirements" class="fade-in" style="transition-delay: 0.4s;">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="content-card p-6 rounded-xl bg-card-bg border-2 border-gray-700 transition-all duration-300">
+                    <h3 class="text-xl font-bold mb-4 text-neon-blue flex items-center"><i data-lucide="check-square" class="w-5 h-5 mr-2"></i> Key Features</h3>
+                    <ul class="list-disc ml-5 space-y-2 text-subtle-text">
+                        <li>Listen for multiple reverse shell connections (TCP).</li>
+                        <li>Auto-assign incremental client IDs.</li>
+                        <li>Interactive console with commands like <span class="inline-code">list</span>, <span class="inline-code">use &lt;id&gt;</span>, <span class="inline-code">helpsh</span>, <span class="inline-code">clear</span>, and <span class="inline-code">exit</span>.</li>
+                        <li>Per-client output handling (only output from the selected client is printed).</li>
+                        <li>Non-blocking handling of multiple clients via threads and queues.</li>
+                        <li>Shell one-liners (Bash, Python, PowerShell, etc.) included via <span class="inline-code">helpsh</span>.</li>
+                    </ul>
+                </div>
+
+                <div class="content-card p-6 rounded-xl bg-card-bg border-2 border-gray-700 transition-all duration-300">
+                    <h3 class="text-xl font-bold mb-4 text-neon-blue flex items-center"><i data-lucide="wrench" class="w-5 h-5 mr-2"></i> Requirements</h3>
+                    <ul class="list-none space-y-4">
+                        <li>
+                            <strong class="text-white">Software:</strong> Python 3.8+ recommended.
+                        </li>
+                        <li>
+                            <strong class="text-white">Python Modules:</strong> <span class="inline-code">colorama</span> and <span class="inline-code">pygments</span>.
+                            <pre class="mt-2 code-block-cmd">python3 -m pip install colorama pygments</pre>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <section id="workflow" class="fade-in" style="transition-delay: 0.6s;">
+            <h2 class="text-3xl font-bold mb-6 text-neon-blue border-b-2 border-neon-blue pb-2 tracking-widest">WORKFLOW</h2>
+            <div class="bg-card-bg p-8 rounded-xl border border-neon-blue border-neon shadow-2xl space-y-6">
+                <ol class="list-decimal ml-5 space-y-4 text-lg text-subtle-text">
+                    <li>Start the listener on your lab machine: <span class="inline-code">python3 smrs.py</span>.</li>
+                    <li>From an authorized target, run a reverse shell payload that connects back to your listener IP/PORT.</li>
+                    <li>When a client connects, the handler will automatically notify you and select the client. (Example message: <span class="inline-code">[+] Client 1 connected from 10.0.0.12:56789 [*] Auto-selected client 1</span>)</li>
+                    <li>Use <span class="inline-code">list</span> to view connected clients.</li>
+                    <li>Use <span class="inline-code">use &lt;id&gt;</span> to select a different client.</li>
+                    <li>Type shell commands and press Enter; the output from the selected client will appear in your console.</li>
+                    <li>Use <span class="inline-code">helpsh</span> to view the bundled one-liners.</li>
+                </ol>
+
+                <h3 class="text-xl font-bold mt-8 text-white flex items-center"><i data-lucide="command" class="w-5 h-5 mr-2 text-neon-blue"></i> Command List</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left table-auto">
+                        <thead>
+                            <tr class="text-neon-blue border-b border-neon-blue">
+                                <th class="py-2 pr-4">Command</th>
+                                <th class="py-2">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-2 pr-4"><span class="inline-code">list</span></td>
+                                <td class="py-2">List current connections and which client is selected.</td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-2 pr-4"><span class="inline-code">use &lt;id&gt;</span></td>
+                                <td class="py-2">Switch to a client by its numeric ID.</td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-2 pr-4"><span class="inline-code">help</span></td>
+                                <td class="py-2">Display help menu.</td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-2 pr-4"><span class="inline-code">helpsh</span></td>
+                                <td class="py-2">Print reverse-shell one-liners (syntax highlighted).</td>
+                            </tr>
+                            <tr class="border-b border-gray-700">
+                                <td class="py-2 pr-4"><span class="inline-code">clear</span> / <span class="inline-code">cls</span></td>
+                                <td class="py-2">Clear console and reprint banner.</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 pr-4"><span class="inline-code">exit</span> / <span class="inline-code">quit</span></td>
+                                <td class="py-2">Close all client sockets and exit.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="text-xl font-bold mt-8 text-white flex items-center"><i data-lucide="settings-2" class="w-5 h-5 mr-2 text-neon-blue"></i> Changing IP/PORT</h3>
+                <p class="text-subtle-text">Modify these variables at the top of the Python script and restart it:</p>
+                <pre><code class="code-block-cmd">IP = '10.0.0.5'      # used in the embedded payload templates
+HOST = '0.0.0.0'     # interface to bind the listener
+PORT = 4444          # listener port</code></pre>
+            </div>
+            
+        </section>
+
+        <hr class="border-gray-700">
+
+        <section id="troubleshooting-security" class="fade-in" style="transition-delay: 0.8s;">
+             <h2 class="text-3xl font-bold mb-6 text-neon-blue border-b-2 border-neon-blue pb-2 tracking-widest">SUPPORT</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="content-card p-6 rounded-xl bg-card-bg border-2 border-gray-700 transition-all duration-300">
+                    <h3 class="text-xl font-bold mb-4 text-neon-blue flex items-center"><i data-lucide="bug" class="w-5 h-5 mr-2"></i> Troubleshooting</h3>
+                    <ul class="list-disc ml-5 space-y-3 text-subtle-text">
+                        <li><strong>Nothing connects:</strong> Check the client payload's IP/port, ensure the listener is bound correctly (set <span class="inline-code">HOST</span> to <span class="inline-code">0.0.0.0</span> to listen on all interfaces), and check for firewall rules.</li>
+                        <li><strong>Client disconnects immediately:</strong> Look for payload errors on the client side (wrong quoting, missing interpreter), network drops, or NAT issues.</li>
+                        <li><strong>Encoding issues:</strong> The output is <span class="inline-code">decode('utf-8', errors='ignore')</span>, so some binary or non-UTF8 data may be ignored or mangled.</li>
+                        <li><strong>Permission issues binding to port &lt; 1024:</strong> Use a higher port or run script with appropriate privileges.</li>
+                    </ul>
+                </div>
+
+                <div class="content-card p-6 rounded-xl bg-card-bg border-2 border-gray-700 transition-all duration-300">
+                    <h3 class="text-xl font-bold mb-4 text-neon-blue flex items-center"><i data-lucide="shield-check" class="w-5 h-5 mr-2"></i> Security Considerations</h3>
+                    <ul class="list-disc ml-5 space-y-3 text-subtle-text">
+                        <li>Do not expose the tool on untrusted networks or the public internet, as it accepts raw shell input/output over TCP.</li>
+                        <li>Consider running the listener inside an isolated environment (VM, container) and inside an isolated network segment when testing.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-gray-700">
+
+        <section id="license" class="fade-in" style="transition-delay: 1.0s;">
+            <h2 class="text-3xl font-bold mb-6 text-neon-blue border-b-2 border-neon-blue pb-2 tracking-widest">LICENSE</h2>
+            <div class="bg-card-bg p-8 rounded-xl border border-neon-blue border-neon shadow-2xl space-y-4">
+                <h3 class="text-xl font-bold mt-8 text-white">MIT License</h3>
+                <p class="text-subtle-text">Copyright (c) 2025 MRITARI</p>
+                <p class="text-sm text-subtle-text leading-relaxed">
+                    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+                </p>
+                <p class="text-sm text-subtle-text leading-relaxed">
+                    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+                </p>
+                <p class="text-sm text-subtle-text leading-relaxed">
+                    THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Replaces lucide icon placeholders with actual SVG elements
+            lucide.createIcons();
+
+            const faders = document.querySelectorAll('.fade-in');
+
+            const appearOptions = {
+                threshold: 0,
+                rootMargin: "0px 0px -100px 0px" // Start fade-in 100px before reaching the bottom
+            };
+
+            const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.classList.add('is-visible');
+                        appearOnScroll.unobserve(entry.target);
+                    }
+                });
+            }, appearOptions);
+
+            faders.forEach(fader => {
+                appearOnScroll.observe(fader);
+            });
+        });
+    </script>
+</body>
+</html>
