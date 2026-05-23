@@ -35,52 +35,91 @@
     <main class="max-w-3xl mx-auto pt-32 px-6 pb-20">
         
         <header class="mb-16">
-            <h1 class="text-4xl font-semibold tracking-tighter text-primary mb-2">SMRS-Handler</h1>
-            <p class="text-gray-500 uppercase tracking-[0.2em] text-[10px]">Simple Multi Reverse Shell Handler</p>
+            <h1 class="text-4xl font-semibold tracking-tighter text-primary mb-2">SMRS-HANDLER</h1>
+            <p class="text-gray-500 uppercase tracking-[0.2em] text-[10px]">Simple Multi Reverse Shell Handler (v1.1.0)</p>
         </header>
 
         <section class="mb-12">
             <h2 class="text-primary uppercase tracking-[0.2em] mb-6 text-[12px] font-bold">Overview</h2>
-            <p class="text-sm">A light, console-based reverse-shell manager and interactive listener written in Python 3. It allows you to accept and manage multiple reverse shell connections, select a client, and interact with it from a single terminal.</p>
+            <p class="text-sm mb-6">A light, console-based reverse-shell manager and interactive listener written in Python 3. It allows you to accept and manage multiple reverse shell connections, select a client, and interact with it from a single terminal.</p>
+            <div class="text-[10px] p-4 border border-accent/30 text-gray-500 italic">
+                <strong class="font-bold text-primary">Legal & Ethical Notice:</strong> This tool can be used for offensive operations. Do not use it against networks, systems, or devices you do not own or for which you do not have explicit, written permission. Use only in your lab, on your machines, or within written scopes of authorized penetration tests.
+            </div>
         </section>
 
         <section class="grid md:grid-cols-2 gap-4 mb-12">
             <div class="border border-accent/30 p-6">
-                <h3 class="text-primary uppercase tracking-[0.2em] text-[10px] font-bold mb-4">Features</h3>
-                <ul class="text-xs space-y-2 list-disc list-inside text-gray-500">
-                    <li>Multi-client TCP support</li>
-                    <li>Auto-assigned client IDs</li>
-                    <li>Interactive console</li>
-                    <li>Per-client output handling</li>
-                    <li>Integrated shell one-liners</li>
+                <h3 class="text-primary uppercase tracking-[0.2em] text-[10px] font-bold mb-4">Key Features</h3>
+                <ul class="text-[11px] space-y-2 list-disc list-inside text-gray-500">
+                    <li>Listen for multiple reverse shell connections (TCP).</li>
+                    <li>Auto-assign incremental client IDs.</li>
+                    <li>Interactive console with commands like <span class="text-primary font-mono">list</span>, <span class="text-primary font-mono">use</span>, <span class="text-primary font-mono">helpsh</span>.</li>
+                    <li>Per-client output handling.</li>
+                    <li>Non-blocking handling via threads and queues.</li>
                 </ul>
             </div>
             <div class="border border-accent/30 p-6">
                 <h3 class="text-primary uppercase tracking-[0.2em] text-[10px] font-bold mb-4">Requirements</h3>
-                <ul class="text-xs space-y-2 list-none text-gray-500">
-                    <li>Python 3.8+</li>
-                    <li>pip install colorama pygments</li>
+                <ul class="text-[11px] space-y-4 text-gray-500">
+                    <li><strong class="text-gray-300">Software:</strong> Python 3.8+</li>
+                    <li><strong class="text-gray-300">Modules:</strong> colorama, pygments<br>
+                        <code class="block mt-2 bg-black p-2 border border-accent/20 text-primary">python3 -m pip install colorama pygments</code>
+                    </li>
                 </ul>
             </div>
         </section>
 
         <section class="mb-12">
             <h2 class="text-primary uppercase tracking-[0.2em] mb-6 text-[12px] font-bold">Workflow</h2>
-            <div class="border border-accent/30 p-8 font-mono text-[11px] text-gray-500">
-                <p>1. Start listener: <span class="text-primary">python3 smrs.py</span></p>
-                <p>2. Execute reverse shell payload on target.</p>
-                <p>3. Use <span class="text-primary">list</span> to view connections.</p>
-                <p>4. Use <span class="text-primary">use &lt;id&gt;</span> to interact.</p>
+            <div class="border border-accent/30 p-8 space-y-4 text-[11px] text-gray-500 font-mono">
+                <p>1. Start the listener: <span class="text-primary">python3 smrs.py</span></p>
+                <p>2. Run reverse shell payload on target.</p>
+                <p>3. Handler notifies and auto-selects new connection.</p>
+                <p>4. Use <span class="text-primary">list</span> to view, <span class="text-primary">use &lt;id&gt;</span> to interact.</p>
+                <p>5. <span class="text-primary">helpsh</span> for payload templates.</p>
             </div>
+
+            <div class="mt-8">
+                <h3 class="text-primary uppercase tracking-[0.2em] mb-4 text-[10px] font-bold">Command List</h3>
+                <table class="w-full text-left text-[11px] text-gray-500">
+                    <tr class="border-b border-accent/20"><td class="py-2 text-primary">list</td><td class="py-2">List current connections</td></tr>
+                    <tr class="border-b border-accent/20"><td class="py-2 text-primary">use &lt;id&gt;</td><td class="py-2">Switch to a client</td></tr>
+                    <tr class="border-b border-accent/20"><td class="py-2 text-primary">helpsh</td><td class="py-2">Print reverse-shell one-liners</td></tr>
+                    <tr class="border-b border-accent/20"><td class="py-2 text-primary">clear / cls</td><td class="py-2">Clear console</td></tr>
+                    <tr><td class="py-2 text-primary">exit</td><td class="py-2">Close all and exit</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <section class="grid md:grid-cols-2 gap-4 mb-12">
+            <div class="border border-accent/30 p-6">
+                <h3 class="text-primary uppercase tracking-[0.2em] text-[10px] font-bold mb-4">Troubleshooting</h3>
+                <ul class="text-[11px] space-y-2 list-disc list-inside text-gray-500">
+                    <li>Check IP/Port in payload.</li>
+                    <li>Ensure listener host is 0.0.0.0.</li>
+                    <li>Verify firewall rules.</li>
+                    <li>Use sudo for ports &lt; 1024.</li>
+                </ul>
+            </div>
+            <div class="border border-accent/30 p-6">
+                <h3 class="text-primary uppercase tracking-[0.2em] text-[10px] font-bold mb-4">Security</h3>
+                <p class="text-[11px] text-gray-500">Do not expose this tool on public networks. Run only within isolated lab segments or secure, authorized environments.</p>
+            </div>
+        </section>
+
+        <section class="mb-12 border-t border-accent/20 pt-8">
+            <h2 class="text-primary uppercase tracking-[0.2em] mb-4 text-[12px] font-bold">MIT License</h2>
+            <p class="text-[10px] text-gray-600 leading-relaxed">
+                Copyright (c) 2025 MRITARI. Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the Software without restriction. THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+            </p>
         </section>
 
         <div class="flex gap-4">
             <a href="https://github.com/MRITARI/SMRS-Handler" class="border border-primary text-primary px-8 py-3 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-primary hover:text-black transition-all">
-                View Repository
+                GitHub Repository
             </a>
         </div>
 
     </main>
-
 </body>
 </html>
